@@ -9,12 +9,17 @@ from random import randint
 # In order to use pygame, we have to use init
 pygame.init()
 
-# Include pygame
-# Init pygame
+
 # Create a screen with a size
 screen = {
 	'height': 385,
-	'width': 600
+	'width': 600,
+	'floor': 290
+}
+
+background = {
+	'x': 0,
+	'y': 0
 }
 
 keys = {
@@ -33,8 +38,8 @@ keys_down = {
 
 hero = {
 	'x': 200,
-	'y': 295,
-	'speed': 10,
+	'y': 290,
+	'speed': 5,
 	'wins': 0,
 	'health': 100,
 	'alive': True
@@ -60,15 +65,23 @@ boo = {
 }
 
 physics = {
-	'gravity': 7
+	'gravity': 5
 }
 
+
+
+
+
+move_timer = 0
 tick = 0
 death_time = 0
 screen_size = (screen['width'], screen['height'])
 pygame_screen = pygame.display.set_mode(screen_size)
 pygame.display.set_caption("Goblin Chase")
-background_image = pygame.image.load('images/marioBackground.png')
+#Background>>
+background_image = pygame.image.load('images/full_background.png')
+#Background Scaled>>
+background_image_scaled = pygame.transform.scale(background_image, (6544, 743))
 hero_image = pygame.image.load('images/mario.png')
 bowser_image = pygame.image.load('images/bowser.png')
 hero_image_scale = pygame.transform.scale(hero_image, (32, 32))
@@ -77,6 +90,16 @@ shroom_image = pygame.image.load('images/mario_shroom.png')
 shroom_image_scale = pygame.transform.scale(shroom_image, (24, 24))
 boo_left = pygame.image.load('./images/boo.gif')
 boo_left_scale = pygame.transform.scale(boo_left, (35, 35))
+mario_stand = pygame.image.load('./mario_movement_pics/Mario_stand.png')
+mario_stand_scale = pygame.transform.scale(mario_stand, (44, 44))
+mario_move_1_load = pygame.image.load('./mario_movement_pics/mario_move_1.png')
+mario_move_1 = pygame.transform.scale(mario_move_1_load, (44, 44))
+mario_move_2_load = pygame.image.load('./mario_movement_pics/mario_move_2.png')
+mario_move_2 = pygame.transform.scale(mario_move_2_load, (44, 44))
+mario_move_3_load = pygame.image.load('./mario_movement_pics/mario_move_3.png')
+mario_move_3 = pygame.transform.scale(mario_move_3_load, (44, 44))
+
+
 
 #Music and SOund Effects
 # pygame.mixer.music.load('./sounds/mario_01.wav')
@@ -110,7 +133,7 @@ while game_on:
 				keys_down['left'] = True
 			elif event.key == keys['right']:
 				keys_down['right'] = True
-			print event.key
+			# print event.key
 		elif event.type == pygame.KEYUP:
 			if event.key == keys['up']:
 				keys_down['up'] = False
@@ -121,7 +144,7 @@ while game_on:
 			elif event.key == keys['right']:
 				keys_down['right'] = False				
 
-
+#----------MARIO MOVEMENT----------
 	if keys_down['up']:
 		while (keys_down['up'] == True):
 			if (hero['y'] >= 175):
@@ -130,19 +153,42 @@ while game_on:
 				keys_down['up'] = False
 	# while (hero['y'] < 290):
 	# 	keys_down['up'] = False
-	if (hero['y'] < 293):
+	if (hero['y'] < (screen['floor'] - 2)):
 		hero['y'] += physics['gravity']
 
 	# elif keys_down['down']:
 	# 	hero['y'] += hero['speed']
 	if keys_down['left']:
-		hero['x'] -= hero['speed']
-		if (hero['x'] <= (-30)):
-			hero['x'] = screen['width']
+		background['x'] += hero['speed']
+		#Screen loop left -> right
+		# if (hero['x'] <= (-30)):
+		# 	hero['x'] = screen['width']
 	elif keys_down['right']:
-		hero['x'] += hero['speed']
-		if (hero['x'] >= screen['width'] + 10):
-			hero['x'] = 0
+		background['x'] -= hero['speed']
+		move_timer += 1
+		if (move_timer > 30): 
+			move_timer = 0
+		#Screen loop right -> left	
+		# if (hero['x'] >= screen['width'] + 10):
+		# 	hero['x'] = 0
+
+	#---------MARIO ANIMATE---------
+	displayed_mario = [mario_move_1, mario_move_2, mario_move_3]
+	
+	#--------Image selector-------
+	def image_selector(timer):
+		current_image = displayed_mario[0]
+		while (keys_down['right'] == True):
+			if (timer > 0) and (timer <= 10):
+				current_image = displayed_mario[0]
+			elif (timer < 10) and (timer <= 20):
+				current_image = displayed_mario[1]
+			elif (timer > 20) and (timer <= 30):
+				current_image = displayed_mario[2]
+			return current_image
+		if (keys_down['right'] == False):
+			timer = 0
+			return mario_stand_scale
 		
 
 	#COLLISON + MOVEMENT BOWSER
@@ -202,10 +248,7 @@ while game_on:
 
 	#--------Mario DEAD!---------
 	
-	if death_time == tick + 1:
-		death_sound.play()
-	if tick - death_time == 180:
-		death_sound.stop()
+	
 
 
 
@@ -222,7 +265,7 @@ while game_on:
 	#blit takes 2 arguments
 		#1. what?
 		#2.where?
-	pygame_screen.blit(background_image, [0,0])
+	pygame_screen.blit(background_image_scaled, [background['x'],0])
 
 	#Draw the hero wins on the screen
 	font = pygame.font.Font('./images/8_bit_pusab.ttf', 10)
@@ -236,13 +279,13 @@ while game_on:
 
 
 	# draw the hero
-	pygame_screen.blit(hero_image_scale, [hero['x'], hero['y']])
+	pygame_screen.blit(image_selector(move_timer), [hero['x'], hero['y']])
 
 	#draw bowser
-	pygame_screen.blit(bowser_image_scale, [bowser['x'], bowser['y']])
+	# pygame_screen.blit(bowser_image_scale, [bowser['x'], bowser['y']])
 
 	#draw shroom
-	pygame_screen.blit(shroom_image_scale, [shroom['x'], shroom['y']])
+	# pygame_screen.blit(shroom_image_scale, [shroom['x'], shroom['y']])
 
 	#draw boo-left
 	pygame_screen.blit(boo_left_scale, [boo['x'], boo['y']])
