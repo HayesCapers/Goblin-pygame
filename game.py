@@ -84,7 +84,7 @@ goomba_1 = {
 	'speed': 2
 }
 
-goomba_go = [-240, -1512, -1975, -2644, -3228, -3752, -4620, -10000]
+# goomba_go = [-240, -1512, -1975, -2644, -3228, -3752, -4620, -10000]
 
 # boo = {
 # 	'x': 200,
@@ -121,7 +121,7 @@ background_image_scaled = pygame.transform.scale(background_image, (6544, 743))
 #||||MARIO IMAGES||||
 #//////////\\\\\\\\\\\
 mario_stand = pygame.image.load('./mario_movement_pics/Mario_stand.png')
-mario_stand_scale = pygame.transform.scale(mario_stand, (50, 44))
+mario_stand_scale = pygame.transform.scale(mario_stand, (55, 44))
 #right mvoement images
 mario_move_1_load = pygame.image.load('./mario_movement_pics/mario_move_1.png')
 mario_move_1 = pygame.transform.scale(mario_move_1_load, (44, 44))
@@ -161,8 +161,9 @@ pygame.mixer.music.load('./sounds/mario_theme.wav')
 pygame.mixer.music.play(-1)
 power_up_sound = pygame.mixer.Sound('./sounds/smb_powerup.wav')
 death_sound = pygame.mixer.Sound('./sounds/smb_mariodie.wav')
-
-
+right_mario = [mario_move_1, mario_move_2, mario_move_3, mario_jump_right]
+left_mario = [mario_left_1, mario_left_2, mario_left_3, mario_jump_left]
+#---------MARIO ANIMATE---------
 def image_selector_mario(timer):
 				if game_over == False:
 					current_image_right = right_mario[0]
@@ -216,6 +217,8 @@ while game_on:
 	# print background['x']
 	# print tick
 	goomba_image_timer += 1
+	if (goomba_image_timer >= 20):
+		goomba_image_timer = 0		
 	#We are inside the main game loop. this will run whikelthe gam is on
 	#------EVENTS-----
 
@@ -311,9 +314,8 @@ while game_on:
 				# if (hero['x'] >= screen['width'] + 10):
 				# 	hero['x'] = 0
 
-			#---------MARIO ANIMATE---------
-			right_mario = [mario_move_1, mario_move_2, mario_move_3, mario_jump_right]
-			left_mario = [mario_left_1, mario_left_2, mario_left_3, mario_jump_left]
+			
+			
 			#--------Image selector-------
 			
 
@@ -337,8 +339,7 @@ while game_on:
 			# if goomba['x'] == -10:
 			# 	goomba['x'] = 620
 								
-			if (goomba_image_timer >= 20):
-				goomba_image_timer = 0		
+			
 			
 
 			
