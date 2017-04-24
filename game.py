@@ -29,6 +29,12 @@ holes = {
 	'3': [-4490, -4570]
 }
 
+# question_blocks = {
+# 	'1': [-272, -297],
+# 	'2': [-424, -449],
+# 	'3': [-488, ]
+# }
+
 keys = {
 	'right': 275,
 	'left': 276,
@@ -92,6 +98,7 @@ physics = {
 }
 
 
+#-----GAME CONDITION VARIABLES-----
 game_paused = False
 game_over = False
 
@@ -155,6 +162,51 @@ pygame.mixer.music.play(-1)
 power_up_sound = pygame.mixer.Sound('./sounds/smb_powerup.wav')
 death_sound = pygame.mixer.Sound('./sounds/smb_mariodie.wav')
 
+
+def image_selector_mario(timer):
+				if game_over == False:
+					current_image_right = right_mario[0]
+					current_image_left = left_mario[0]
+					mario_jump_right_currently = right_mario[3]
+					mario_jump_left_currently = left_mario[3]
+					if (keys_down['up'] and keys_down['right']):
+						return mario_jump_right_currently
+					if (keys_down['up'] and keys_down['left']):
+						return mario_jump_left_currently
+
+					while (keys_down['right'] == True) and (keys_down['up'] == False):
+						if (timer > 0) and (timer <= 10):
+							current_image_right = right_mario[0]
+						elif (timer < 10) and (timer <= 20):
+							current_image_right = right_mario[1]
+						elif (timer > 20) and (timer <= 30):
+							current_image_right = right_mario[2]
+						return current_image_right
+					while (keys_down['left'] == True):
+						if (timer > 0) and (timer <= 10):
+							current_image_left = left_mario[0]
+						elif (timer < 10) and (timer <= 20):
+							current_image_left = left_mario[1]
+						elif (timer > 20) and (timer <= 30):
+							current_image_left = left_mario[2]
+						return current_image_left
+
+					else:
+						timer = 0
+						return mario_stand_scale
+				elif hero['health'] == 0:
+					return mario_dead
+
+
+				#---------Goomba Move----------
+#ANIMATE GOOMBA
+def goomba_img_selector(timer):
+	if (timer >= 0) and (timer < 10):
+		return goomba_scale_1
+	elif (timer >= 10) and (timer < 20):
+		return goomba_scale_2
+
+
 #/////////////////////////////////////////////////////
 #//////////////////MAIN GAME LOOP////////////////////
 #///////////////////////////////////////////////////
@@ -190,7 +242,7 @@ while game_on:
 				background['x'] = 0
 				goomba['x'] = 620
 				hero['y'] = screen['floor']
-				goomba_go = goomba_go
+				pygame.mixer.music.play(-1)
 			# print event.key
 		elif event.type == pygame.KEYUP:
 			if event.key == keys['up']:
@@ -227,6 +279,9 @@ while game_on:
 			for i in holes:
 				if (background['x'] < holes[i][0]) and (background['x'] > holes[i][1]):
 					hero['y'] += physics['gravity']
+			if goomba['x'] < screen['width']:
+				if (goomba['x'] < background['x'] - holes['1'][1] + hero['x']) and (goomba['x'] > background['x'] - holes['1'][0] + hero['x']):
+					goomba['y'] += physics['gravity']
 			#---------HOLE WALLS!!-----------
 
 			for i in holes:	
@@ -260,47 +315,14 @@ while game_on:
 			right_mario = [mario_move_1, mario_move_2, mario_move_3, mario_jump_right]
 			left_mario = [mario_left_1, mario_left_2, mario_left_3, mario_jump_left]
 			#--------Image selector-------
-			def image_selector_mario(timer):
-				if game_over == False:
-					current_image_right = right_mario[0]
-					current_image_left = left_mario[0]
-					mario_jump_right_currently = right_mario[3]
-					mario_jump_left_currently = left_mario[3]
-					if (keys_down['up'] and keys_down['right']):
-						return mario_jump_right_currently
-					if (keys_down['up'] and keys_down['left']):
-						return mario_jump_left_currently
-
-					while (keys_down['right'] == True) and (keys_down['up'] == False):
-						if (timer > 0) and (timer <= 10):
-							current_image_right = right_mario[0]
-						elif (timer < 10) and (timer <= 20):
-							current_image_right = right_mario[1]
-						elif (timer > 20) and (timer <= 30):
-							current_image_right = right_mario[2]
-						return current_image_right
-					while (keys_down['left'] == True):
-						if (timer > 0) and (timer <= 10):
-							current_image_left = left_mario[0]
-						elif (timer < 10) and (timer <= 20):
-							current_image_left = left_mario[1]
-						elif (timer > 20) and (timer <= 30):
-							current_image_left = left_mario[2]
-						return current_image_left
-
-					else:
-						timer = 0
-						return mario_stand_scale
-				elif hero['health'] == 0:
-					return mario_dead
-
-
-				#---------Goomba Move----------
+			
 
 
 			if background['x'] <= holes['1'][1]:
 				if keys_down['right']:
 					goomba['speed'] = hero['speed'] + 2
+				elif keys_down['left']:
+					goomba['speed'] = hero['speed'] - 2
 				else:
 					goomba['speed'] = 2
 				goomba['x'] -= goomba['speed']
@@ -314,16 +336,10 @@ while game_on:
 			# 		goomba['x'] -= goomba['speed']
 			# if goomba['x'] == -10:
 			# 	goomba['x'] = 620
-							
-
-			#ANIMATE GOOMBA
-			def goomba_img_selector(timer):
-				if (timer >= 0) and (timer < 10):
-					return goomba_scale_1
-				elif (timer >= 10) and (timer < 20):
-					return goomba_scale_2
+								
 			if (goomba_image_timer >= 20):
-				goomba_image_timer = 0
+				goomba_image_timer = 0		
+			
 
 			
 
